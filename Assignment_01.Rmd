@@ -1,0 +1,95 @@
+---
+title: "Assignment_1 - Moving Averages"
+author: "Carlos Araya"
+date: "March 18th, 2017"
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+This document was scribed with a use plotly package intention and explain Moving Averages formula
+
+## Moving Averages
+
+In statistics, a moving average (rolling average or running average) is a calculation to analyze data points by creating series of averages of different subsets of the full data set.
+
+### Simple moving average
+
+In financial applications a simple moving average (SMA) is the unweighted mean of the previous n data. However, in science and engineering the mean is normally taken from an equal number of data on either side of a central value.
+
+$$SMA = \frac{1}{n}\sum_{i=0}^{n-1} X_{M-i}$$
+
+### Exponential Moving Average
+
+An exponential moving average (EMA), also known as an exponentially weighted moving average (EWMA), is a type of infinite impulse response filter that applies weighting factors which decrease exponentially.
+
+$$EMA_t = EMA_{t-1} - \alpha \times (X_t - EMA_{t-1}) $$
+
+### A Plot with both
+
+```{r Candlestick, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(plotly)
+library(dplyr)
+library(quantmod)
+
+prices <- getSymbols("MSFT", auto.assign = F)
+prices <- tail(prices, 100) # for the assignmet use only the last 50
+dat <- as.data.frame(prices)
+
+dat$date <- index(prices)
+names(dat) <- sub("^MSFT\\.", "", names(dat))
+# create variable with hovertext displaying values of every variable
+vars <- Map(function(x, y) paste0(x, ": ", y), names(dat), dat)
+dat$txt <- Reduce(function(x, y) paste0(x, "<br />", y), vars)
+
+for (i in 1:length(dat[,1])) {
+  if (dat$Close[i] >= dat$Open[i]) {
+    dat$direction[i] = 'Increasing'
+  } else {
+    dat$direction[i] = 'Decreasing'
+  }
+}
+
+ema.20 <-   EMA(dat[,"Close"], 20)
+sma.20 <-   SMA(dat[,"Close"], 20)
+#dema.20 <-  DEMA(ttrc[,"Close"], 20)
+#evwma.20 <- EVWMA(ttrc[,"Close"], ttrc[,"Volume"], 20)
+#zlema.20 <- ZLEMA(ttrc[,"Close"], 20)
+#alma <- ALMA(ttrc[,"Close"])
+#hma <- HMA(ttrc[,"Close"])
+
+dat <- subset(cbind(dat, data.frame(ema.20), data.frame(sma.20)), date >= date[20])
+
+## Candlerplot with segments
+candlerplot <- plot_ly(dat, x = ~date, xend = ~date, color = ~Close > Open,
+                       colors = c("red", "forestgreen"), hoverinfo = "none") %>%
+  add_segments(y = ~Low, yend = ~High, size = I(1), legendgroup = "Not") %>%
+  add_segments(y = ~Open, yend = ~Close, size = I(3), legendgroup = "Not") %>%
+  add_trace(y = ~ema.20 , name = "EMA", type = 'scatter', mode = 'lines'
+            , line = list(color = 'blue', width = 0.5)
+            , legendgroup = "MA") %>%
+  add_trace(y = ~sma.20 , name = "SMA", type = 'scatter', mode = 'lines'
+            , line = list(color = 'grey', width = 0.5)
+            , legendgroup = "MA") %>%
+  layout(showlegend = FALSE)
+
+## Volume BarChar
+volume<- plot_ly(dat, x=~date, y=~Volume, type='bar', name = "AAPL Volume",
+        color = ~direction, colors = c("red", "forestgreen")) %>%
+  layout(yaxis = list(title = "Volume"))
+
+
+subplot(candlerplot, volume, heights = c(0.7,0.2), nrows=2,
+        shareX = TRUE, titleY = TRUE) %>%
+  rangeslider()
+
+```
+
+> SMS in grey line and EMA in blue line.
+
