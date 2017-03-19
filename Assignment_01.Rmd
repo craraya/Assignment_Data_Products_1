@@ -2,11 +2,7 @@
 title: "Assignment_1 - Moving Averages"
 author: "Carlos Araya"
 date: "March 18, 2017"
-output:
-  html_document: default
-  pdf_document: default
-  md_document:
-    variant: markdown_github
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -40,6 +36,7 @@ $$EMA_t = EMA_{t-1} - \alpha \times (X_t - EMA_{t-1}) $$
 library(plotly)
 library(dplyr)
 library(quantmod)
+library(htmltools)
 
 prices <- getSymbols("MSFT", auto.assign = F)
 prices <- tail(prices, 100) # for the assignmet use only the last 50
@@ -69,6 +66,8 @@ sma.20 <-   SMA(dat[,"Close"], 20)
 
 dat <- subset(cbind(dat, data.frame(ema.20), data.frame(sma.20)), date >= date[20])
 
+
+## py <- plotly("RgraphingAPI", "ektgzomjbx")
 ## Candlerplot with segments
 candlerplot <- plot_ly(dat, x = ~date, xend = ~date, color = ~Close > Open,
                        colors = c("red", "forestgreen"), hoverinfo = "none") %>%
@@ -83,14 +82,22 @@ candlerplot <- plot_ly(dat, x = ~date, xend = ~date, color = ~Close > Open,
   layout(showlegend = FALSE)
 
 ## Volume BarChar
-volume<- plot_ly(dat, x=~date, y=~Volume, type='bar', name = "AAPL Volume",
+volume <- plot_ly(dat, x=~date, y=~Volume, type='bar', name = "AAPL Volume",
         color = ~direction, colors = c("red", "forestgreen")) %>%
   layout(yaxis = list(title = "Volume"))
 
 
-subplot(candlerplot, volume, heights = c(0.7,0.2), nrows=2,
+final_plot <- subplot(candlerplot, volume, heights = c(0.7,0.2), nrows=2,
         shareX = TRUE, titleY = TRUE) %>%
-  rangeslider()
+  rangeslider() #%>%
+
+browsable(tags$div(
+  style = "display: flex; flex-wrap: wrap",
+  tagList(
+    tags$div(final_plot, style = "width: 100%; padding: 1em; border: solid;")
+  )
+))
+
 
 ```
 
