@@ -1,0 +1,8 @@
+name: Publish Document
+title:
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/259955/9bb377caa7ba48098699ba80c6578ec4
+bundleId: https://api.rpubs.com/api/v1/document/259955/9bb377caa7ba48098699ba80c6578ec4
+url: http://rpubs.com/craraya/259955
+when: 1489899322.56919

@@ -93,13 +93,6 @@ final_plot <- subplot(candlerplot, volume, heights = c(0.7,0.2), nrows=2,
 
 plotly_POST(final_plot, filename = "final_plot")
 
-#browsable(tags$div(
-#  style = "display: flex; flex-wrap: wrap",
-#  tagList(
-#    tags$div(final_plot, style = "width: 100%; padding: 1em; border: solid;")
-#  )
-#))
-
 
 ```
 
