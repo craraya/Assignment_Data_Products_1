@@ -1,9 +1,12 @@
 ---
 title: "Assignment_1 - Moving Averages"
 author: "Carlos Araya"
-date: "March 18th, 2017"
-output: html_document
-
+date: "March 18, 2017"
+output:
+  html_document: default
+  pdf_document: default
+  md_document:
+    variant: markdown_github
 ---
 
 ```{r setup, include=FALSE}
